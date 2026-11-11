@@ -46,11 +46,22 @@ function forwardLlmkaruselKeys(request: HttpServerRequest.HttpServerRequest) {
     const token = process.env.LLMKARUSEL_TOKEN
     if (!token) return jsonResponse({ error: "gateway token missing" }, 503)
 
-    const web = HttpServerRequest.toWeb(request)
+    const webRequest: globalThis.Request = yield* HttpServerRequest.toWeb(request).pipe(
+      Effect.catch(() =>
+        Effect.succeed(
+          new Request("http://127.0.0.1/_llmkarusel/keys", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: "{}",
+          }),
+        ),
+      ),
+    )
     const rawBody = yield* Effect.tryPromise({
-      try: () => web.text(),
+      try: () => webRequest.text(),
       catch: () => new Error("body"),
     }).pipe(Effect.orElseSucceed(() => ""))
+    const payload: string = rawBody.length > 0 ? rawBody : "{}"
 
     const host = process.env.LLMKARUSEL_HOST ?? "127.0.0.1"
     const port = process.env.LLMKARUSEL_PORT ?? "4127"
@@ -62,7 +73,7 @@ function forwardLlmkaruselKeys(request: HttpServerRequest.HttpServerRequest) {
             "content-type": request.headers["content-type"] ?? "application/json",
             authorization: `Bearer ${token}`,
           },
-          body: rawBody || "{}",
+          body: payload,
         }).then(async (response) => ({
           status: response.status,
           text: await response.text(),
