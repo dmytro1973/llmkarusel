@@ -14,7 +14,8 @@
     "./karusel": "./src/karusel.ts",
     "./clipboard": "./src/clipboard.ts",
     "./gateway": "./src/gateway.ts",
-    "./embed": "./src/embed.ts"
+    "./embed": "./src/embed.ts",
+    "./token": "./src/token.ts"
   },
   "scripts": {
     "gateway": "bun run src/gateway.ts",

@@ -55,6 +55,8 @@ export type RunOptions = {
   readonly body: ChatBody
   readonly timeoutMs?: number
   readonly signal?: AbortSignal
+  /** When false/undefined, keyless third-party routes are skipped (fail closed). */
+  readonly keyless?: boolean
 }
 
 function routesFromKeys(keys: RunOptions["keys"], clipboardText?: string): BoundRoute[] {
@@ -84,13 +86,14 @@ function routesFromKeys(keys: RunOptions["keys"], clipboardText?: string): Bound
   return bound
 }
 
-function buildChain(keys: RunOptions["keys"], clipboardText?: string) {
+function buildChain(keys: RunOptions["keys"], clipboardText?: string, keyless?: boolean) {
   const keyed = routesFromKeys(keys, clipboardText).map((route) => ({
     id: route.id,
     endpoint: route.endpoint,
     model: route.model,
     key: route.key,
   }))
+  if (!keyless) return keyed
   return [...keyed, ...KEYLESS]
 }
 
@@ -153,7 +156,10 @@ async function tryRoute(
 /** Real fetch failover across keyed lanes then keyless routes. */
 export async function runKarusel(options: RunOptions): Promise<KaruselResult> {
   const attempts: Attempt[] = []
-  const chain = buildChain(options.keys, options.clipboardText)
+  const keyless =
+    options.keyless === true ||
+    (options.keyless === undefined && process.env.LLMKARUSEL_KEYLESS === "1")
+  const chain = buildChain(options.keys, options.clipboardText, keyless)
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
 
   for (const route of chain) {

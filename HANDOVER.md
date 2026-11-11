@@ -9,6 +9,9 @@ Dieselbe OpenCode-App (CLI/Server/Web/TUI), nicht eine Demo daneben. Provider `l
 - Schlüssel: Format-Scan aus Zwischenablage / Paste / Autofill. Nie anzeigen, kein Passwort-Prompt.
 - Failover: echter `fetch` zur nächsten Route bei Verbindungsfehler, Timeout, 402/429/4xx/5xx.
 - Shared Kern: `packages/llmkarusel` (key-lane, karusel, gateway auf `127.0.0.1:4127`).
+- Gateway: Bearer `LLMKARUSEL_TOKEN`, kein CORS `*`, Loopback-only (sonst `LLMKARUSEL_INSECURE_BIND=1`).
+- Keyless nur mit `LLMKARUSEL_KEYLESS=1` (Embed setzt das für den Fork-Default).
+- Web-Keys: same-origin `POST /_llmkarusel/keys` (Server forwarded mit Token).
 
 ## Lokal starten
 

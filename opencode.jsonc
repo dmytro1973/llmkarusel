@@ -8,7 +8,7 @@
       "package": "@opencode/ai/providers/openai-compatible",
       "settings": {
         "baseURL": "http://127.0.0.1:4127/v1",
-        "apiKey": "llmkarusel-local",
+        "apiKey": "{env:LLMKARUSEL_TOKEN}",
       },
       "models": {
         "auto": {

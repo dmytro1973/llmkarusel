@@ -1,8 +1,13 @@
 import { FSUtil } from "@opencode/util/fs-util"
-import { Effect, FileSystem } from "effect"
+import { Effect, FileSystem, Schema } from "effect"
 import { HttpServerError, HttpServerRequest, HttpServerResponse } from "effect/http"
 import { createHash } from "node:crypto"
 import { load, type AssetMap, type BrotliMap } from "../app-assets"
+
+const KeyBody = Schema.Struct({
+  text: Schema.optional(Schema.String),
+  keys: Schema.optional(Schema.Array(Schema.String)),
+})
 
 export const handler = Effect.fn("cli.web-ui.handler")(function* (options?: {
   readonly assets?: AssetMap
@@ -16,6 +21,10 @@ export const handler = Effect.fn("cli.web-ui.handler")(function* (options?: {
     Effect.gen(function* () {
       const request = yield* HttpServerRequest.HttpServerRequest
       const url = new URL(request.url, "http://localhost")
+      // Same-origin key bridge: browser never sees the gateway token.
+      if (request.method === "POST" && url.pathname === "/_llmkarusel/keys") {
+        return yield* forwardLlmkaruselKeys()
+      }
       // Serve the web shell before API authentication so a signed-out browser gets the app's sign-in screen.
       if (
         url.pathname === "/api" ||
@@ -29,6 +38,41 @@ export const handler = Effect.fn("cli.web-ui.handler")(function* (options?: {
       return yield* assets.pipe(Effect.flatMap((loaded) => serveUI(request, url, loaded.files, loaded.brotli)))
     })
 })
+
+function forwardLlmkaruselKeys() {
+  return Effect.gen(function* () {
+    const token = process.env.LLMKARUSEL_TOKEN
+    if (!token) {
+      return HttpServerResponse.json({ error: "gateway token missing" }, { status: 503 })
+    }
+    const body = yield* HttpServerRequest.schemaBodyJson(KeyBody).pipe(
+      Effect.catch(() => Effect.succeed({} as typeof KeyBody.Type)),
+    )
+    const host = process.env.LLMKARUSEL_HOST ?? "127.0.0.1"
+    const port = process.env.LLMKARUSEL_PORT ?? "4127"
+    const upstream = yield* Effect.tryPromise(() =>
+      fetch(`http://${host}:${port}/v1/keys`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      }).then(async (response) => ({
+        status: response.status,
+        text: await response.text(),
+      })),
+    ).pipe(
+      Effect.catch(() =>
+        Effect.succeed({ status: 502, text: JSON.stringify({ error: "gateway unreachable" }) }),
+      ),
+    )
+    return HttpServerResponse.raw(upstream.text, {
+      status: upstream.status,
+      headers: { "content-type": "application/json", "cache-control": "no-store" },
+    })
+  })
+}
 
 function serveUI(
   request: HttpServerRequest.HttpServerRequest,

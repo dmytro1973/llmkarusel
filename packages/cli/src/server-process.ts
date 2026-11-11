@@ -68,8 +68,7 @@ const processEffect = Effect.fnUntraced(function* (options: Options) {
   yield* Effect.tryPromise(() =>
     import("@opencode/llmkarusel/embed").then((mod) => mod.ensureGateway()),
   ).pipe(
-    Effect.catch((cause) => Effect.logWarning("llmkarusel gateway failed to start", { cause })),
-    Effect.asVoid,
+    Effect.tapError((cause) => Effect.logError("llmkarusel gateway failed to start", { cause })),
   )
   return yield* Effect.scoped(
     Effect.gen(function* () {

@@ -1,7 +1,5 @@
 import { onCleanup, onMount } from "solid-js"
 
-const GATEWAY = "http://127.0.0.1:4127"
-
 const PATTERNS = [
   /(?<![A-Za-z0-9_-])sk-or-v1-[a-f0-9]{64}(?![A-Za-z0-9_-])/,
   /(?<![A-Za-z0-9_-])AIza[0-9A-Za-z_-]{35}(?![A-Za-z0-9_-])/,
@@ -13,16 +11,18 @@ function looksLikeKey(text: string) {
   return PATTERNS.some((pattern) => pattern.test(text))
 }
 
+/** Same-origin bridge — OpenCode server forwards with the gateway token (never exposed to the page). */
 async function postKeys(text: string) {
   if (!text || !looksLikeKey(text)) return
   try {
-    await fetch(`${GATEWAY}/v1/keys`, {
+    await fetch("/_llmkarusel/keys", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text }),
+      credentials: "same-origin",
     })
   } catch {
-    // Gateway may not be up yet; CLI clipboard path still applies.
+    // Server/gateway may not be up yet; CLI clipboard ingest still applies.
   }
 }
 
@@ -37,7 +37,7 @@ async function readClipboard() {
 
 /**
  * Overnimmt API-Keys aus Zwischenablage / Paste / Autofill.
- * Zeigt Schlüssel nie an — nur stiller Scan und POST an das lokale Gateway.
+ * Zeigt Schlüssel nie an — nur stiller Scan und POST über same-origin Bridge.
  */
 export function LlmkaruselKeyBridge() {
   onMount(() => {
