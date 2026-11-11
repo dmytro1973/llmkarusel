@@ -1,12 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "opencode",
-  "description": "AI-powered development tool",
+  "name": "llmkarusel",
+  "description": "OpenCode fork with llmkarusel free-remote failover",
   "version": "2.2.7",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
+    "gateway": "bun run --cwd packages/llmkarusel src/gateway.ts",
+    "dev:llmkarusel": "bun packages/llmkarusel/bin/llmkarusel.mjs",
     "dev": "bun run --cwd packages/cli src/index.ts",
     "dev:live": "sh -c 'OPENCODE_TUI_CHANNEL=dev OPENCODE_PASSWORD=\"$(opencode service get password)\" exec bun run dev \"$@\" --server \"$(opencode service status)\"' --",
     "dev:vite": "bun run --cwd packages/cli --conditions=browser dev/vite.ts",

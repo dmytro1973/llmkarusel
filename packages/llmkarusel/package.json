@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@opencode/llmkarusel",
+  "version": "2.2.7",
+  "description": "Free-remote failover model layer for llmkarusel",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "llmkarusel-gateway": "./src/gateway.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./key-lane": "./src/key-lane.ts",
+    "./karusel": "./src/karusel.ts",
+    "./clipboard": "./src/clipboard.ts",
+    "./gateway": "./src/gateway.ts",
+    "./embed": "./src/embed.ts"
+  },
+  "scripts": {
+    "gateway": "bun run src/gateway.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

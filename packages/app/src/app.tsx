@@ -21,6 +21,7 @@ import { TabsProvider } from "@/shell/tabs/tabs"
 import { ErrorPage } from "@/shell/errors/error"
 import { AppRoutes, File, preloadRoute } from "@/shell/routes/routes"
 import { PluginRoot } from "@/runtime/plugin/root"
+import { LlmkaruselKeyBridge } from "@/runtime/llmkarusel-keys"
 
 export { preloadRoute }
 
@@ -57,7 +58,7 @@ export function AppBaseProviders(
 ) {
   return (
     <MetaProvider>
-      <Title>OpenCode</Title>
+      <Title>llmkarusel</Title>
       <Font />
       <ThemeProvider onThemeApplied={(mode, scheme) => props.onThemeApplied?.(mode, scheme)}>
         <LanguageProvider locale={props.locale} onNativeTranslations={props.onNativeTranslations}>
@@ -72,6 +73,7 @@ export function AppBaseProviders(
               <QueryProvider>
                 <DialogProvider>
                   <PluginRoot>
+                    <LlmkaruselKeyBridge />
                     <FileComponentProvider component={File}>{props.children}</FileComponentProvider>
                   </PluginRoot>
                 </DialogProvider>

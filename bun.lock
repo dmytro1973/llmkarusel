@@ -108,6 +108,7 @@
       "name": "@opencode/cli",
       "version": "2.2.7",
       "bin": {
+        "llmkarusel": "./bin/llmkarusel.cjs",
         "opencode": "./bin/opencode.cjs",
         "opencode2": "./bin/opencode2.cjs",
       },
@@ -117,6 +118,7 @@
         "@clack/prompts": "1.0.0-alpha.1",
         "@effect/platform-node": "catalog:",
         "@opencode/client": "workspace:*",
+        "@opencode/llmkarusel": "workspace:*",
         "@opencode/plugin": "workspace:*",
         "@opencode/pty": "0.5.0",
         "@opencode/schema": "workspace:*",
@@ -474,6 +476,17 @@
         "@tsconfig/bun": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+      },
+    },
+    "packages/llmkarusel": {
+      "name": "@opencode/llmkarusel",
+      "version": "2.2.7",
+      "bin": {
+        "llmkarusel-gateway": "./src/gateway.ts",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/merman": {
@@ -1816,6 +1829,8 @@
     "@opencode/latex": ["@opencode/latex@workspace:packages/latex"],
 
     "@opencode/legacy": ["@opencode/legacy@workspace:services/legacy"],
+
+    "@opencode/llmkarusel": ["@opencode/llmkarusel@workspace:packages/llmkarusel"],
 
     "@opencode/merman": ["@opencode/merman@workspace:packages/merman"],
 

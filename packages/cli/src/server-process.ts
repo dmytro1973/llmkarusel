@@ -64,6 +64,13 @@ const processEffect = Effect.fnUntraced(function* (options: Options) {
     yield* Effect.try(() => process.chdir(global.home)).pipe(
       Effect.catch((cause) => Effect.logWarning("failed to change service directory to home", { cause })),
     )
+  // llmkarusel failover gateway is part of this OpenCode fork's server process.
+  yield* Effect.tryPromise(() =>
+    import("@opencode/llmkarusel/embed").then((mod) => mod.ensureGateway()),
+  ).pipe(
+    Effect.catch((cause) => Effect.logWarning("llmkarusel gateway failed to start", { cause })),
+    Effect.asVoid,
+  )
   return yield* Effect.scoped(
     Effect.gen(function* () {
       const foreground = options.mode === "default"

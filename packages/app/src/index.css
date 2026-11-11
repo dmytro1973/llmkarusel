@@ -412,3 +412,17 @@
     padding-block: 0;
   }
 }
+
+/* llmkarusel: Papier-dunkel (kein Lila) */
+:root {
+  --llmkarusel-bg: #121510;
+  --llmkarusel-fg: #efe9d8;
+  --llmkarusel-accent: #d6f25c;
+}
+
+html.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+  background-color: var(--llmkarusel-bg);
+  color: var(--llmkarusel-fg);
+}
